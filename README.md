@@ -93,10 +93,7 @@ Trained multiple classification models:
 - **ROC-AUC:** 0.8383  
 - **Macro Avg F1:** 0.74  
 - **Weighted Avg F1:** 0.79  
-
-**Confusion Matrix:**  
-
-
+ 
 ---
 
 ## Insights  
