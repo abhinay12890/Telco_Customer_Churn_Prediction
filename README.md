@@ -8,6 +8,7 @@ The dataset comes from the **Telco Customer Churn dataset** with customer demogr
 ---
 
 ## Dataset  
+- **Source:** [Kaggle - Telco Customer Churn](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 - **Size:** (7043, 21)  
 - **Target:** `Churn` (Yes/No)  
 - **Features:** gender, tenure, contract, payment method, internet service, monthly charges, total charges, etc.  
