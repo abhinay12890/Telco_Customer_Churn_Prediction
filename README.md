@@ -102,5 +102,6 @@ Trained multiple classification models:
 - Recall for **churn class (1)** improved, making the model more effective for identifying at-risk customers.  
 
 ---
-
+## Author  
+**Abhinay Kalavakuri**
 
