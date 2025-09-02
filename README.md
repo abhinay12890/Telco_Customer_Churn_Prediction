@@ -76,7 +76,7 @@ Trained multiple classification models:
 | SGDC                        | 0.7314     | 0.8066     |
 | GNB (Naive Bayes)           | 0.7104     | 0.8160     |
 
-✅ **Gradient Boosting Classifier (GBC)** performed the best across both **Accuracy** and **AUC**, making it the final chosen model.  
+**Gradient Boosting Classifier (GBC)** performed the best across both **Accuracy** and **AUC**, making it the final chosen model.  
 
 ---
 
