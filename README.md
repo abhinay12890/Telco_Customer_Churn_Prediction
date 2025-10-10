@@ -15,14 +15,16 @@ The dataset comes from the **Telco Customer Churn dataset** with customer demogr
 
 ---
 ## File Structure 
+```
 ├── Customer_Churn_Classification.ipynb   # Jupyter notebook with EDA, model training & evaluation
 ├── app.py                                # Gradio web app for deployment
 ├── best_churn_model.pkl                  # Trained machine learning model
 ├── feature_names.pkl                     # List of selected feature names used for prediction
 ├── label_encoding.pkl                    # Label encoder mappings for categorical variables
-├── yes_col_names.pkl                     # Encoded column names corresponding to 'Yes/No' categorical values
-├── requirements.txt                      # List of dependencies for the project (deployment side)
+├── yes_col_names.pkl                     # Encoded columns corresponding to 'Yes' categorical values
+├── requirements.txt                      # List of dependencies for the project
 ├── README.md                             # Project documentation (this file)
+```
 
 
 ---
