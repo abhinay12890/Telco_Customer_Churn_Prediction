@@ -14,6 +14,18 @@ The dataset comes from the **Telco Customer Churn dataset** with customer demogr
 - **Features:** Contract, Internet Service, Phone Service, Tenure, TechSupport, SeniorCitizen, MonthlyCharges, OnlineSecurity, PaperlessBilling, OnlineBackup, MultipleLines, PaymentMethod, TotalCharges, DeviceProtection.
 
 ---
+## File Structure 
+├── Customer_Churn_Classification.ipynb   # Jupyter notebook with EDA, model training & evaluation
+├── app.py                                # Gradio web app for deployment
+├── best_churn_model.pkl                  # Trained machine learning model
+├── feature_names.pkl                     # List of selected feature names used for prediction
+├── label_encoding.pkl                    # Label encoder mappings for categorical variables
+├── yes_col_names.pkl                     # Encoded column names corresponding to 'Yes/No' categorical values
+├── requirements.txt                      # List of dependencies for the project (deployment side)
+├── README.md                             # Project documentation (this file)
+
+
+---
 
 ## Data Preprocessing  
 - Removed **empty strings** and handled **null values** in `totalcharges` column and converted into float datatype.   
