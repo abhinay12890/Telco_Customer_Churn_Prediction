@@ -11,15 +11,15 @@ The dataset comes from the **Telco Customer Churn dataset** with customer demogr
 - **Source:** [Kaggle - Telco Customer Churn](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 - **Size:** (7043, 21)  
 - **Target:** `Churn` (Yes/No)  
-- **Features:** gender, tenure, contract, payment method, internet service, monthly charges, total charges, etc.  
+- **Features:** Contract, Internet Service, Phone Service, Tenure, TechSupport, SeniorCitizen, MonthlyCharges, OnlineSecurity, PaperlessBilling, OnlineBackup, MultipleLines, PaymentMethod, TotalCharges, DeviceProtection.
 
 ---
 
 ## Data Preprocessing  
-- Removed **empty strings** and handled **null values**.  
-- Scaled numerical columns using **StandardScaler**.  
-- Encoded categorical columns using **Label Encoding**.  
-- Applied **SMOTE** (Synthetic Minority Oversampling) to handle class imbalance.  
+- Removed **empty strings** and handled **null values** in `totalcharges` column and converted into float datatype.   
+- Encoded categorical columns using **Label Encoding**.
+- Mapped binary yes/no columns to 1/0
+- Applied **SMOTE** (Synthetic Minority Oversampling) in the training dataset to handle class imbalance. Length of dataset before **SMOTE**: 5282 ; After **SMOTE**: 7760.
 
 ---
 
@@ -34,74 +34,86 @@ The dataset comes from the **Telco Customer Churn dataset** with customer demogr
 ---
 
 ## Feature Selection  
-1. Trained a **base XGBoost classifier** to extract feature importances.  
-   - With all 21 features:  
-     - **Accuracy:** 0.780  
-     - **ROC-AUC:** 0.817  
+1. Trained a **base XGBoost classifier** to extract feature importances and converted into DataFrame containing column names and their importances.  
+   - With all 19 features:  
+     - **Accuracy:** 0.778  
+     - **ROC-AUC:** 0.818  
 
-2. Selected features with importance **above the median** → **Top 9 features fixed**.  
+2. Selected features contributing **90% cumulative importance** → **Top features finalized**(14). 
 
-3. Performed **iterative feature selection**:  
-   - Added remaining features one by one to the fixed 9.  
-   - Re-trained model each time and checked **ROC-AUC**.  
-   - Finalized best-performing features.  
-
-4. **Final dataset size:** (7760, 9 features).  
+3. **Final training dataset size:** (7760, 14 features).  
 
 ---
 
 ## Model Building & Evaluation  
-Trained multiple classification models:  
-- Gradient Boosting Classifier (GBC)  
-- AdaBoost Classifier (ABC)  
-- Bagging Classifier (BC)  
-- Random Forest Classifier (RFC)  
-- Support Vector Classifier (SVC)  
-- Decision Tree (DT)  
-- K-Nearest Classifier (KNC)  
-- Stochastic Gradient Descent Classifier (SGDC)  
-- Gaussian Naive Bayes (GNB)  
+Trained multiple tree-based classification models , since they perform better on tabular datasets.
+
+- Decision Tree (DT)
+- Random Forest Classifier (RFC)
+- Gradient Boosting Classifier (GBC)
+- AdaBoost Classifier (ABC)
+- Bagging Classifier (BC)
+- XGBoost Classifier (XGBC)
+- LightGBM Classifier (LGBMC) 
 
 ### Model Comparison  
 
 | Model | Accuracy | ROC-AUC |
 |-------|----------|---------|
-| **GBC (Gradient Boosting)** | **0.7831** | **0.8383** |
-| ABC (AdaBoost)              | 0.7564     | 0.8323     |
-| BC (Bagging Classifier)     | 0.7553     | 0.7769     |
-| RFC (Random Forest)         | 0.7530     | 0.7939     |
-| SVC                         | 0.7445     | 0.8100     |
-| DT (Decision Tree)          | 0.7433     | 0.7038     |
-| KNC (K-Nearest)             | 0.7325     | 0.7623     |
-| SGDC                        | 0.7314     | 0.8066     |
-| GNB (Naive Bayes)           | 0.7104     | 0.8160     |
+| **LGBMC (LightGBM Classifier)** | **0.77797** | **0.82875** |
+| RFC (Random Forest Classifier)              | 0.77115     | 0.82001     |
+| GBC (Gradient Boosting Classifier)     | 0.77058     | 0.83570     |
+| BC (Bagging Classifier)         | 0.76661     | 0.79104     |
+| XGBC (XGBoost Classifier)                     | 0.76604     | 0.81832     |
+| ABC (AdaBoost Classifier)          | 0.75639     | 0.83326     |
+| DT (Decision Tree Classifier)             | 0.73311     | 0.68427     |
 
-**Gradient Boosting Classifier (GBC)** performed the best across both **Accuracy** and **AUC**, making it the final chosen model.  
+
+**LightGBM Classifier (LGBMC)** performed the best across both **Accuracy** and **AUC**, making it the final chosen model.  
 
 ---
 
-## Final Model Performance  
+## Final Model Performance
 
+**Before Threshold tuning**
 **Classification Report:**  
 
 | Class | Precision | Recall | F1-Score | Support |
 |-------|-----------|--------|----------|---------|
-| 0 (No Churn) | 0.88 | 0.81 | 0.85 | 1294 |
-| 1 (Churn)    | 0.58 | 0.70 | 0.63 | 467 |
+| 0 (No Churn) | 0.87 | 0.82 | 0.84 | 1294 |
+| 1 (Churn)    | 0.57 | 0.67 | 0.61 | 467 |
 
-- **Accuracy:** 0.7831  
-- **ROC-AUC:** 0.8383  
-- **Macro Avg F1:** 0.74  
-- **Weighted Avg F1:** 0.79  
+- **Accuracy:** 0.78  
+- **ROC-AUC:** 0.829
+  
+ **After Threshold tuning (selected threshold 0.4 on probability)**
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| 0 (No Churn) | 0.89 | 0.77 | 0.82 | 1294 |
+| 1 (Churn)    | 0.53 | 0.73 | 0.62 | 467 |
+
+- **Accuracy:** 0.76  
+- **ROC-AUC:** 0.829
  
 ---
 
 ## Insights  
-- Feature selection reduced dimensionality from **21 → 9 features** while preserving performance.  
-- Model achieved a strong **ROC-AUC (0.8383)**, indicating good discrimination between churn and non-churn customers.  
-- Recall for **churn class (1)** improved, making the model more effective for identifying at-risk customers.  
+- Feature selection reduced dimensionality from **21 → 14 features** while preserving performance.  
+- Model achieved a strong **ROC-AUC (0.829)**, indicating good discrimination between churn and non-churn customers.  
+- Threshold tuning increased recall for **churn class (1)** by **8.9%**, making the model more effective for identifying at-risk customers.
+- **LightGBMClassifier** provided best balance of predictive performance and training efficiency.
 
 ---
+## Deployment
+- Saved artificats: selected feature list, label-encoding mappings, yes/no column list and final trained model (PKL files).
+- Build a Gradio interface for interactive churn prediction with:
+  -  Dropdown for categorical and binary yes/no features
+  -  Numeric Inputs for continuous variables.
+- Deployed the Gradio app on **Hugging Face Spaces** for live predicitons.
+---
+* Libraries Used: Pandas, Numpy, scikit-learn, joblib, matplotlib, seaborn, gradio, xgboost,lightgbm, imblearn.
+  Load pkl files using `var=joblib.load("file.pkl")`
+---
 ## Author  
-**Abhinay Kalavakuri**
+**Kalavakuri Abhinay**
 
