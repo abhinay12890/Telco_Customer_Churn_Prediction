@@ -30,8 +30,6 @@ This project includes:
 ├── Dockerfile                            # Production Docker Container
 ├── requirements.txt                      # List of dependencies for the project
 ├── README.md                             # Project documentation (this file)
-
-
 ```
 
 
