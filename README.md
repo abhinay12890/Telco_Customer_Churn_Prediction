@@ -136,7 +136,7 @@ This project includes 2 deployment interfaces:
 ### 2. FastAPI (Backend)
 - Endpoint `/predict`
 - API documentation available at `/docs`
-**Example JSON input**\\
+**Example JSON input** \
   {
   "Contract": "Month-to-month",
   "InternetService": "Fiber optic",
