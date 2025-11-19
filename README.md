@@ -1,9 +1,14 @@
 # Telco Customer Churn Prediction  
 
 ## Project Overview  
-This project focuses on predicting **customer churn** using machine learning classification techniques. The goal is to identify customers who are likely to discontinue the service, enabling businesses to take proactive measures for customer retention.  
-
-The dataset comes from the **Telco Customer Churn dataset** with customer demographics, account information, and service usage details.  
+This project builds a complete machine learning system to identify customers who are likely to discontinue the service, enabling businesses to take proactive measures for customer retention. 
+This project includes:
+  * **Full ML Workflow** - EDA, feature engineering, model selection
+  * **Production-ready model** *(LightGBM)*
+  * **FastAPI REST API** for programmatic predictions
+  * **Gradio Web App** for interactive predictions
+  * **Cloud deployment on Railway**
+ 
 
 ---
 
@@ -16,14 +21,16 @@ The dataset comes from the **Telco Customer Churn dataset** with customer demogr
 ---
 ## File Structure 
 ```
-├── Customer_Churn_Classification.ipynb   # Jupyter notebook with EDA, model training & evaluation
-├── app.py                                # Gradio web app for deployment
-├── best_churn_model.pkl                  # Trained machine learning model
-├── feature_names.pkl                     # List of selected feature names used for prediction
+├── Customer_Churn_Classification.ipynb   # EDA + ML training notebook
+├── app2.py                               # FastAPI + Gradio unified backend
+├── best_churn_model.pkl                  # Final Trained LightGBM model
+├── feature_names.pkl                     # List of selected feature names (14) used for prediction
 ├── label_encoding.pkl                    # Label encoder mappings for categorical variables
-├── yes_col_names.pkl                     # Encoded columns corresponding to 'Yes' categorical values
+├── yes_col_names.pkl                     # Encoded columns corresponding to 'Yes/No' categorical values
+├── Dockerfile                            # Production Docker Container
 ├── requirements.txt                      # List of dependencies for the project
 ├── README.md                             # Project documentation (this file)
+
 ```
 
 
@@ -34,11 +41,10 @@ The dataset comes from the **Telco Customer Churn dataset** with customer demogr
 - Encoded categorical columns using **Label Encoding**.
 - Mapped binary yes/no columns to 1/0
 - Applied **SMOTE** (Synthetic Minority Oversampling) in the training dataset to handle class imbalance. Length of dataset before **SMOTE**: 5282 ; After **SMOTE**: 7760.
-
 ---
 
 ## Exploratory Data Analysis (EDA)  
-- Visualized churn distribution.  
+- Visualized churn distribution using seaborn, matplotlib  
 - Analyzed customer behavior with respect to churn:  
   - Contract type  
   - Payment method  
@@ -89,7 +95,7 @@ Trained multiple tree-based classification models , since they perform better on
 
 ## Final Model Performance
 
-**Before Threshold tuning**
+**Before Threshold tuning (default 0.5)**
 **Classification Report:**  
 
 | Class | Precision | Recall | F1-Score | Support |
@@ -118,12 +124,38 @@ Trained multiple tree-based classification models , since they perform better on
 - **LightGBMClassifier** provided best balance of predictive performance and training efficiency.
 
 ---
-## Deployment
+## Deployment Architechure
 - Saved artificats: selected feature list, label-encoding mappings, yes/no column list and final trained model (PKL files).
+
+This project includes 2 deployment interfaces:
+### 1. Interactive Gradio App (Frontend UI)
 - Build a Gradio interface for interactive churn prediction with:
   -  Dropdown for categorical and binary yes/no features
   -  Numeric Inputs for continuous variables.
-- Deployed the Gradio app on **Hugging Face Spaces** for live predicitons.
+  -  Displays prediction: **Churn / No Churn** with probability
+### 2. FastAPI (Backend)
+- Endpoint `/predict`
+- API documentation available at `/docs`
+**Example JSON input**
+  {
+  "Contract": "Month-to-month",
+  "InternetService": "Fiber optic",
+  "PhoneService": "Yes",
+  "tenure": 12,
+  "TechSupport": "No",
+  "SeniorCitizen": "No",
+  "MonthlyCharges": 65.4,
+  "OnlineSecurity": "No",
+  "PaperlessBilling": "Yes",
+  "OnlineBackup": "No",
+  "MultipleLines": "No",
+  "PaymentMethod": "Electronic check",
+  "TotalCharges": 785.25,
+  "DeviceProtection": "No"
+}
+
+## Docker Containerization
+- `docker build -t churn_api .` 
 ---
 * Libraries Used: Pandas, Numpy, scikit-learn, joblib, matplotlib, seaborn, gradio, xgboost,lightgbm, imblearn.
   Load pkl files using `var=joblib.load("file.pkl")`
