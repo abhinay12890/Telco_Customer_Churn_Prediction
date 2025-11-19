@@ -158,6 +158,7 @@ This project includes 2 deployment interfaces:
 - `docker build -t churn_api .` # building the image
 - `docker run -p 8000:8000 churn_api` # running locally
 - `http://localhost:8000/` # access UI
+- Docker image available at [abhinay1289/customer_api](https://hub.docker.com/repository/docker/abhinay1289/customer_api/)
 ## Cloud Deployment (Railway)
 - Project has been deployed using
   - Docker-based deployment with Gradio UI as root path
