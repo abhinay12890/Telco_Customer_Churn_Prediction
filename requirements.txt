@@ -1,5 +1,0 @@
-pandas
-joblib
-gradio
-scikit-learn
-lightgbm
