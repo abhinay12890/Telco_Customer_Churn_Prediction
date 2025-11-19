@@ -167,7 +167,7 @@ This project includes 2 deployment interfaces:
 - [`https://customerapi-production-8ca6.up.railway.app/`](https://customerapi-production-8ca6.up.railway.app/) # For gradio
 - [`https://customerapi-production-8ca6.up.railway.app/docs`](https://customerapi-production-8ca6.up.railway.app/docs) # for FastAPI
 ---
-* Libraries & Tools Used: Pandas, Numpy, scikit-learn, joblib, matplotlib, seaborn, gradio, xgboost,lightgbm, imblearn, FastAPI, Uvicorn, Docker \
+* Libraries & Tools Used: Pandas, Numpy, scikit-learn, joblib, matplotlib, seaborn, gradio, xgboost,lightgbm, imblearn, FastAPI, Uvicorn, Docker
   - Load pkl files using `var=joblib.load("file.pkl")`
 ---
 ## Author  
