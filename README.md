@@ -137,7 +137,7 @@ This project includes 2 deployment interfaces:
 - Endpoint `/predict`
 - API documentation available at `/docs`
 **Example JSON input** \
-  {
+  `{
   "Contract": "Month-to-month",
   "InternetService": "Fiber optic",
   "PhoneService": "Yes",
@@ -152,12 +152,22 @@ This project includes 2 deployment interfaces:
   "PaymentMethod": "Electronic check",
   "TotalCharges": 785.25,
   "DeviceProtection": "No"
-}
+}`
 
 ## Docker Containerization
-- `docker build -t churn_api .` 
+- `docker build -t churn_api .` # building the image
+- `docker run -p 8000:8000 churn_api` # running locally
+- `http://localhost:8000/` # access UI
+## Cloud Deployment (Railway)
+- Project has been deployed using
+  - Docker-based deployment with Gradio UI as root path
+  - FastAPI served alongside UI at /docs
+ 
+**URLS (accessible online)** 
+- `https://customerapi-production-8ca6.up.railway.app/` # For gradio
+- `https://customerapi-production-8ca6.up.railway.app/docs` # for FastAPI
 ---
-* Libraries Used: Pandas, Numpy, scikit-learn, joblib, matplotlib, seaborn, gradio, xgboost,lightgbm, imblearn.
+* Libraries & Tools Used: Pandas, Numpy, scikit-learn, joblib, matplotlib, seaborn, gradio, xgboost,lightgbm, imblearn, FastAPI, Uvicorn, Docker
   Load pkl files using `var=joblib.load("file.pkl")`
 ---
 ## Author  
