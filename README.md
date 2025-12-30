@@ -1,14 +1,15 @@
-# Telco Customer Churn Prediction  
+# Telco Customer Churn Prediction (End-to-End ML System)
 
-## Project Overview  
-This project builds a complete machine learning system to identify customers who are likely to discontinue the service, enabling businesses to take proactive measures for customer retention. 
-This project includes:
-  * **Full ML Workflow** - EDA, feature engineering, model selection
-  * **Production-ready model** *(LightGBM)*
-  * **FastAPI REST API** for programmatic predictions
-  * **Gradio Web App** for interactive predictions
-  * **Cloud deployment on Railway**
- 
+## Project Overview
+This project implements a **production-ready, end-to-end machine learning system** to predict customer churn in a telecom environment.  
+The focus is on **imbalanced classification**, **robust evaluation using PR-AUC**, **threshold-aware decision-making**, and **cloud-ready deployment**.
+
+The project goes beyond model training and covers:
+- Correct metric selection for imbalanced data
+- Cross-validated feature selection
+- Multi-model benchmarking
+- Threshold tuning aligned with business objectives
+- API, UI, and Docker-based deployment
 
 ---
 
@@ -16,30 +17,27 @@ This project includes:
 - **Source:** [Kaggle - Telco Customer Churn](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 - **Size:** (7043, 21)  
 - **Target:** `Churn` (Yes/No)  
-- **Features:** Contract, Internet Service, Phone Service, Tenure, TechSupport, SeniorCitizen, MonthlyCharges, OnlineSecurity, PaperlessBilling, OnlineBackup, MultipleLines, PaymentMethod, TotalCharges, DeviceProtection.
 
 ---
-## File Structure 
+## Project Structure
 ```
-├── Customer_Churn_Classification.ipynb   # EDA + ML training notebook
-├── app2.py                               # FastAPI + Gradio unified backend
-├── best_churn_model.pkl                  # Final Trained LightGBM model
-├── feature_names.pkl                     # List of selected feature names (14) used for prediction
-├── label_encoding.pkl                    # Label encoder mappings for categorical variables
-├── yes_col_names.pkl                     # Encoded columns corresponding to 'Yes/No' categorical values
-├── Dockerfile                            # Production Docker Container
-├── requirements.txt                      # List of dependencies for the project
-├── README.md                             # Project documentation (this file)
+├── Customer_Churn_Classification.ipynb
+├── app2.py                         # Gradio UI + FastAPI backend
+├── best_churn_model.pkl            # Final trained model
+├── feature_names.pkl               # Selected feature list
+├── feature_encoding.pkl            # Category encoding maps
+├── Dockerfile                      # DockerFile
+├── requirements.txt                # Requirments for this project
+├── README.md
 ```
-
-
 ---
 
 ## Data Preprocessing  
 - Removed **empty strings** and handled **null values** in `totalcharges` column and converted into float datatype.   
 - Encoded categorical columns using **Label Encoding**.
-- Mapped binary yes/no columns to 1/0
-- Applied **SMOTE** (Synthetic Minority Oversampling) in the training dataset to handle class imbalance. Length of dataset before **SMOTE**: 5282 ; After **SMOTE**: 7760.
+- Created category-to-integer encoding dictionary
+- Ensured strict feature order alignment across training, API interface and Gradio UI
+- Avoided data leakage by performing all transformations inside training folds
 ---
 
 ## Exploratory Data Analysis (EDA)  
@@ -53,42 +51,40 @@ This project includes:
 ---
 
 ## Feature Selection  
-1. Trained a **base XGBoost classifier** to extract feature importances and converted into DataFrame containing column names and their importances.  
-   - With all 19 features:  
-     - **Accuracy:** 0.778  
-     - **ROC-AUC:** 0.818  
-
-2. Selected features contributing **90% cumulative importance** → **Top features finalized**(14). 
-
-3. **Final training dataset size:** (7760, 14 features).  
-
+1. Trained a **base LightGBM classifier**  using 5-fold Stratified Cross-Validation
+2. Evaluated folds using
+   i. **PR-AUC (primary metrics)**
+   ii. **ROC-AUC (secondary metric)**
+3. Aggergated feature importances (gain-based)
+4. Applied quantile-based feature selection (top 70%) and reduced features to 13.
 ---
 
-## Model Building & Evaluation  
-Trained multiple tree-based classification models , since they perform better on tabular datasets.
+## Model Benchmarking
+Trained multiple tree-based classification models , since they perform better on tabular datasets with consistent pre-processing and evaluated using PR-RUC, which is appropriate for imbalanced dataset.
+
+
 
 - Decision Tree (DT)
-- Random Forest Classifier (RFC)
+- Random Forest Classifier (RF)
 - Gradient Boosting Classifier (GBC)
 - AdaBoost Classifier (ABC)
-- Bagging Classifier (BC)
 - XGBoost Classifier (XGBC)
 - LightGBM Classifier (LGBMC) 
 
 ### Model Comparison  
 
-| Model | Accuracy | ROC-AUC |
-|-------|----------|---------|
-| **LGBMC (LightGBM Classifier)** | **0.77797** | **0.82875** |
-| RFC (Random Forest Classifier)              | 0.77115     | 0.82001     |
-| GBC (Gradient Boosting Classifier)     | 0.77058     | 0.83570     |
-| BC (Bagging Classifier)         | 0.76661     | 0.79104     |
-| XGBC (XGBoost Classifier)                     | 0.76604     | 0.81832     |
-| ABC (AdaBoost Classifier)          | 0.75639     | 0.83326     |
-| DT (Decision Tree Classifier)             | 0.73311     | 0.68427     |
+| Model                                  | PR-AUC    | ROC-AUC   |
+| -------------------------------------- | --------- | --------- |
+| **Gradient Boosting Classifier (GBC)** | **0.657** | **0.840** |
+| AdaBoost Classifier (ABC)              | 0.650     | 0.840     |
+| Random Forest (RF)                     | 0.646     | 0.839     |
+| XGBoost (XGBC)                         | 0.635     | 0.827     |
+| LightGBM (LGBM)                        | 0.610     | 0.817     |
+| Decision Tree (DT)                     | 0.604     | 0.818     |
 
 
-**LightGBM Classifier (LGBMC)** performed the best across both **Accuracy** and **AUC**, making it the final chosen model.  
+
+**Gradient Boosting Classifier (GBC)** performed the best across both **PR-AUC** and **ROC-AUC**, making it the final chosen model.  
 
 ---
 
@@ -97,34 +93,47 @@ Trained multiple tree-based classification models , since they perform better on
 **Before Threshold tuning (default 0.5)**
 **Classification Report:**  
 
-| Class | Precision | Recall | F1-Score | Support |
-|-------|-----------|--------|----------|---------|
-| 0 (No Churn) | 0.87 | 0.82 | 0.84 | 1294 |
-| 1 (Churn)    | 0.57 | 0.67 | 0.61 | 467 |
+| Class        | Precision | Recall | F1-score | Support |
+| ------------ | --------- | ------ | -------- | ------- |
+| 0 (No Churn) | 0.84      | 0.91   | 0.87     | 1552    |
+| 1 (Churn)    | 0.67      | 0.51   | 0.58     | 561     |
 
-- **Accuracy:** 0.78  
-- **ROC-AUC:** 0.829
-  
- **After Threshold tuning (selected threshold 0.4 on probability)**
-| Class | Precision | Recall | F1-Score | Support |
-|-------|-----------|--------|----------|---------|
-| 0 (No Churn) | 0.89 | 0.77 | 0.82 | 1294 |
-| 1 (Churn)    | 0.53 | 0.73 | 0.62 | 467 |
+This provides high-confidence predictions but misses a portion of churners.
+Since default probability threshold is incorrect for imbalanced problems, threshold turning is performed by analyzing
+ - Precision
+ - Recall
+ - F1 Score
+ - F2 Score
+ 
+ **Aggressive Threshold (~0.10, F2-Optimized)**
+| Class        | Precision | Recall | F1-score | Support |
+| ------------ | --------- | ------ | -------- | ------- |
+| 0 (No Churn) | 0.95      | 0.51   | 0.66     | 1552    |
+| 1 (Churn)    | 0.40      | 0.92   | 0.56     | 561     |
 
-- **Accuracy:** 0.76  
-- **ROC-AUC:** 0.829
+Captures 92% of churners suitable for early-warning.
+
+**Balanced Threshold (Selected for Deployment)**
+| Class        | Precision | Recall | F1-score | Support |
+| ------------ | --------- | ------ | -------- | ------- |
+| 0 (No Churn) | 0.87      | 0.86   | 0.86     | 1552    |
+| 1 (Churn)    | 0.62      | 0.65   | 0.63     | 561     |
+
+- **Accuracy:** 0.80  
+- **PR-AUC:** 0.657
+- **ROC-AUC:** 0.840
  
 ---
 
 ## Insights  
-- Feature selection reduced dimensionality from **21 → 14 features** while preserving performance.  
-- Model achieved a strong **ROC-AUC (0.829)**, indicating good discrimination between churn and non-churn customers.  
-- Threshold tuning increased recall for **churn class (1)** by **8.9%**, making the model more effective for identifying at-risk customers.
-- **LightGBMClassifier** provided best balance of predictive performance and training efficiency.
+- Feature selection reduced dimensionality from **21 → 13 features** while preserving performance.  
+- Model achieved a strong **ROC-AUC (0.840)**, indicating good discrimination between churn and non-churn customers.  
+- Threshold tuning increased recall for **churn class (1)** by **27%** from baseline model, making the model more effective for identifying at-risk customers.
+- **Gradient Boosting Classifier (GBC)** provided best balance of predictive performance and training efficiency.
 
 ---
 ## Deployment Architechure
-- Saved artificats: selected feature list, label-encoding mappings, yes/no column list and final trained model (PKL files).
+- Saved artificats: selected feature list, label-encoding mappings and final trained model (PKL files).
 
 This project includes 2 deployment interfaces:
 ### 1. Interactive Gradio App (Frontend UI)
@@ -158,14 +167,14 @@ This project includes 2 deployment interfaces:
 - `docker run -p 8000:8000 churn_api` # running locally
 - `http://localhost:8000/` # access UI
 - Docker image available at [abhinay1289/customer_api](https://hub.docker.com/repository/docker/abhinay1289/customer_api/)
-## Cloud Deployment (Railway)
+## Cloud Deployment (Render)
 - Project has been deployed using
   - Docker-based deployment with Gradio UI as root path
   - FastAPI served alongside UI at /docs
  
 **URLS (accessible online)** 
-- [`https://customerapi-production-8ca6.up.railway.app/`](https://customerapi-production-8ca6.up.railway.app/) # For gradio
-- [`https://customerapi-production-8ca6.up.railway.app/docs`](https://customerapi-production-8ca6.up.railway.app/docs) # for FastAPI
+-[`https://telco-customer-churn-render.onrender.com/`](https://telco-customer-churn-render.onrender.com/) # For gradio
+- [`https://telco-customer-churn-render.onrender.com/docs`](https://telco-customer-churn-render.onrender.com/docs) # for FastAPI
 ---
 * Libraries & Tools Used: Pandas, Numpy, scikit-learn, joblib, matplotlib, seaborn, gradio, xgboost,lightgbm, imblearn, FastAPI, Uvicorn, Docker
   - Load pkl files using `var=joblib.load("file.pkl")`
